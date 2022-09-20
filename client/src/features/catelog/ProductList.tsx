@@ -1,6 +1,6 @@
 import React from 'react'
 import {Product} from "../../app/models/product";
-import {Grid, List} from "@mui/material";
+import {Grid} from "@mui/material";
 import ProductCard from "./ProductCard";
 
 interface Props {
