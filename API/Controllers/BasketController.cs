@@ -18,7 +18,7 @@ public class BasketController : BaseApiController
     [HttpGet(Name = "GetBasket")]
     public async Task<ActionResult<BasketDto>> GetBasket()
     {
-        var basket = await RetrieveBasket();
+        var basket = await RetrieveBasket(GetBuyerId());
 
         if (basket == null) return NotFound();
 
@@ -29,7 +29,7 @@ public class BasketController : BaseApiController
     [HttpPost]
     public async Task<ActionResult<BasketDto>> AddItemToBasket(int productId, int quantity)
     {
-        var basket = await RetrieveBasket();
+        var basket = await RetrieveBasket(GetBuyerId());
 
         if (basket == null) basket = CreateBasket();
 
@@ -49,7 +49,7 @@ public class BasketController : BaseApiController
     [HttpDelete]
     public async Task<ActionResult> RemoveBasketItem(int productId, int quantity)
     {
-        var basket = await RetrieveBasket();
+        var basket = await RetrieveBasket(GetBuyerId());
 
         if (basket == null) return NotFound();
 
@@ -64,21 +64,38 @@ public class BasketController : BaseApiController
 
     private Basket CreateBasket()
     {
-        var buyerId = Guid.NewGuid().ToString();
-        var cookieOptions = new CookieOptions {IsEssential = true, Expires = DateTime.Now.AddDays(7)};
-        Response.Cookies.Append("buyerId", buyerId, cookieOptions);
+        var buyerId = User.Identity?.Name;
+
+        if (string.IsNullOrEmpty(buyerId))
+        {
+            buyerId = Guid.NewGuid().ToString();
+            var cookieOptions = new CookieOptions {IsEssential = true, Expires = DateTime.Now.AddDays(7)};
+            Response.Cookies.Append("buyerId", buyerId, cookieOptions);
+        }
+        
         var basket = new Basket {BuyerId = buyerId};
         _context.Baskets.Add(basket);
         return basket;
     }
 
-    private async Task<Basket> RetrieveBasket()
+    private async Task<Basket> RetrieveBasket(string buyerId)
     {
+        if (string.IsNullOrEmpty(buyerId))
+        {
+            Response.Cookies.Delete("buyerId");
+            return null;
+        }
+
         var basket = await _context.Baskets
             .Include(i => i.Items)
             .ThenInclude(p => p.Product)
-            .FirstOrDefaultAsync(x => x.BuyerId == Request.Cookies["buyerId"]);
+            .FirstOrDefaultAsync(x => x.BuyerId == buyerId);
         return basket;
+    }
+
+    private string GetBuyerId()
+    {
+        return User.Identity?.Name ?? Request.Cookies["buyerId"];
     }
 
     private static BasketDto MapBasketToDto(Basket basket)
