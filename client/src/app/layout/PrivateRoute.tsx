@@ -1,4 +1,4 @@
-import React, {ComponentType, useEffect} from 'react'
+import React, {ComponentType} from 'react'
 import {Redirect, Route, RouteComponentProps, RouteProps} from "react-router-dom";
 import {useAppSelector} from "../store/configureStore";
 

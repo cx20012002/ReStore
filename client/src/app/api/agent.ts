@@ -5,7 +5,7 @@ import {PaginatedResponse} from "../models/pagination";
 import {store} from "../store/configureStore";
 
 const sleep = () => new Promise(resolve => setTimeout(resolve, 1000));
-
+console.log(123)
 axios.defaults.baseURL = 'http://localhost:5200/api/';
 axios.defaults.withCredentials = true;
 
@@ -90,11 +90,18 @@ const Account = {
     currentUser: () => requests.get('account/currentUser')
 }
 
+const Orders = {
+    list: () => requests.get('orders'),
+    fetch: (id: number) => requests.get(`orders/${id}`),
+    create: (values: any) => requests.post('orders', values)
+}
+
 const agent = {
     Catalog,
     TestErrors,
     Basket,
-    Account
+    Account,
+    Orders
 }
 
 export default agent;
