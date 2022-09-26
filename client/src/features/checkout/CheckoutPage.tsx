@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {Box, Button, Paper, Step, StepLabel, Stepper, Typography} from "@mui/material";
 import AddressForm from "./AddressForm";
 import Review from "./Review";
@@ -27,7 +27,6 @@ function getStepContent(step: number) {
     }
 }
 
-
 function CheckoutPage() {
     const [activeStep, setActiveStep] = useState(0);
     const [orderNumber, setOrderNumber] = useState(0);
@@ -40,6 +39,15 @@ function CheckoutPage() {
         mode: 'all',
         resolver: yupResolver(currentValidationSchema)
     });
+    
+    useEffect(() => {
+        agent.Account.fetchAddress()
+            .then(response => {
+                if (response){
+                    methods.reset({...methods.getValues(), ...response, saveAddress: false})
+                }
+            })
+    }, [methods])
 
     const handleNext = async (data: FieldValues) => {
         const {nameOnCard, saveAddress, ...shippingAddress} = data;
@@ -50,7 +58,7 @@ function CheckoutPage() {
                 setOrderNumber(orderNumber)
                 setActiveStep(activeStep + 1);
                 dispatch(clearBasket());
-                setLoading(false)
+                setLoading(false);
             } catch (error) {
                 console.log(error);
                 setLoading(false);

@@ -5,7 +5,7 @@ import {PaginatedResponse} from "../models/pagination";
 import {store} from "../store/configureStore";
 
 const sleep = () => new Promise(resolve => setTimeout(resolve, 1000));
-console.log(123)
+
 axios.defaults.baseURL = 'http://localhost:5200/api/';
 axios.defaults.withCredentials = true;
 
@@ -87,7 +87,8 @@ const Basket = {
 const Account = {
     login: (values: any) => requests.post('account/login', values),
     register: (values: any) => requests.post('account/register', values),
-    currentUser: () => requests.get('account/currentUser')
+    currentUser: () => requests.get('account/currentUser'),
+    fetchAddress: () => requests.get('account/savedAddress')
 }
 
 const Orders = {
