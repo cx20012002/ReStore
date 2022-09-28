@@ -42,8 +42,8 @@ export const fetchCurrentUser = createAsyncThunk<User>(
         } catch (error: any) {
             return thunkAPI.rejectWithValue({error: error.data});
         }
-    },{
-        condition: () =>{
+    }, {
+        condition: () => {
             if (!localStorage.getItem('user')) return false;
         }
     }
@@ -58,8 +58,10 @@ export const accountSlice = createSlice({
             localStorage.removeItem('user');
             history.push('/');
         },
-        setUser: (state, action) =>{
-            state.user = action.payload;
+        setUser: (state, action) => {
+            let claims = JSON.parse(atob(action.payload.token.split('.')[1]));
+            let roles = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+            state.user = {...action.payload, roles: typeof(roles) === 'string' ? [roles] : roles};
         }
     },
     extraReducers: (builder => {
@@ -70,7 +72,9 @@ export const accountSlice = createSlice({
             history.push('/');
         })
         builder.addMatcher(isAnyOf(signInUser.fulfilled, fetchCurrentUser.fulfilled), (state, action) => {
-            state.user = action.payload;
+            let claims = JSON.parse(atob(action.payload.token.split('.')[1]));
+            let roles = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+            state.user = {...action.payload, roles: typeof(roles) === 'string' ? [roles] : roles};
         });
         builder.addMatcher(isAnyOf(signInUser.rejected, fetchCurrentUser.rejected), (state, action) => {
             throw action.payload;

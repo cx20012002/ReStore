@@ -2,6 +2,7 @@ using System.Text;
 using API.Data;
 using API.Entities;
 using API.Middleware;
+using API.RequestHelpers;
 using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -67,6 +68,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+builder.Services.AddScoped<ImageService>();
 
 var app = builder.Build();
 
